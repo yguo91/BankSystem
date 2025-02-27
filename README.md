@@ -12,7 +12,7 @@ A C++ console application that simulates a simple banking system with various ac
 * Security Features: Basic password protection.
 * Multiple Account Types: Support for savings, chequing, fixed deposit, TFSA, RRSP, and more.
 * Data Persistence: Uses file handling or a simple database to store user and account information.
-* Graphical User Interface (GUI): User-friendly Windows desktop application.
+
 ## Technologies Used
 - C++ (Object-Oriented Programming)
 - WinAPI / Qt / MFC (for Windows desktop GUI)
