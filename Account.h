@@ -14,8 +14,8 @@ public:
     virtual void deposit(double amount) = 0;
     virtual bool withdraw(double amount) = 0;
 
-    std::string getAccountNumber() const;
-    double getBalance() const;
+    std::string getAccountNumber() const { return accountNumber; }
+    double getBalance() const { return balance; }
 };
 
 #endif // ACCOUNT_H
