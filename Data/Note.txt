@@ -1,0 +1,2 @@
+This foleder will used to store the Database.
+Please use "Data/Bank.db" as database path.
