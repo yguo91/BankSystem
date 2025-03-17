@@ -1,5 +1,6 @@
 #ifndef BANK_H
 #define BANK_H
+#define DATABASE_FILE "Data/BANK.db"
 
 #include <vector>
 #include <string>

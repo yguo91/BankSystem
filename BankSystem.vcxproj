@@ -118,6 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,10 +131,12 @@
     <ClInclude Include="Account.h" />
     <ClInclude Include="Bank.h" />
     <ClInclude Include="Customer.h" />
+    <ClInclude Include="DatabaseManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bank.cpp" />
     <ClCompile Include="Customer.cpp" />
+    <ClCompile Include="DatabaseManager.cpp" />
     <ClCompile Include="SQLite\sqlite3.c" />
   </ItemGroup>
   <ItemGroup>
