@@ -95,31 +95,51 @@ bool DatabaseManager::createTables() {
 }
 
 bool DatabaseManager::insertUser(const std::string& username, const std::string& password, const std::string& fullName, const std::string& email, const std::string& phone) {
+    std::cout << "Inserting user: " << username << std::endl;
     std::string sql = "INSERT INTO users (username, password_hash, full_name, email, phone) VALUES (?, ?, ?, ?, ?);";
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    int exit = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 3, fullName.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 4, email.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 5, phone.c_str(), -1, SQLITE_STATIC);
 
-    int exit = sqlite3_step(stmt);
+    exit = sqlite3_step(stmt);
+    if (exit != SQLITE_DONE) {
+        std::cerr << "Error inserting user: " << sqlite3_errmsg(db) << std::endl;
+    }
+
     sqlite3_finalize(stmt);
     return exit == SQLITE_DONE;
 }
 
 bool DatabaseManager::insertAccount(int userId, const std::string& accountNumber, const std::string& accountType, double balance, double interestRate) {
+    std::cout << "Inserting account for user ID: " << userId << std::endl;
     std::string sql = "INSERT INTO accounts (user_id, account_number, account_type, balance, interest_rate) VALUES (?, ?, ?, ?, ?);";
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    int exit = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
     sqlite3_bind_int(stmt, 1, userId);
     sqlite3_bind_text(stmt, 2, accountNumber.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 3, accountType.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_double(stmt, 4, balance);
     sqlite3_bind_double(stmt, 5, interestRate);
 
-    int exit = sqlite3_step(stmt);
+    exit = sqlite3_step(stmt);
+    if (exit != SQLITE_DONE) {
+        std::cerr << "Error inserting account: " << sqlite3_errmsg(db) << std::endl;
+    }
+
     sqlite3_finalize(stmt);
     return exit == SQLITE_DONE;
 }
