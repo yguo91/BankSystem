@@ -21,3 +21,8 @@ A C++ console application that simulates a simple banking system with various ac
 - Modular Programming (functions & classes)
 - Basic Data Structures (arrays, linked lists)
 - Design Patterns (at least 3 used)
+
+## To Install this Application
+1. Go to NuGet.
+2. Search and install the "sqlite3_c_plus_plus"
+   ![image](https://github.com/user-attachments/assets/fdf5aaa2-88eb-4bfb-aeac-f735bc230d44)
