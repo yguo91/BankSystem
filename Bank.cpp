@@ -1,34 +1,40 @@
 #include "Bank.h"
+#include <algorithm>
 #include <iostream>
 
-void Bank::addCustomer(const Customer& newCustomer) {
-    customers.push_back(newCustomer);
+Bank::Bank() {
+    logger = Logger::getInstance();
+    configManager = ConfigManager::getInstance();
+}
+
+void Bank::addCustomer(Customer* customer) {
+    customers.push_back(customer);
 }
 
 void Bank::removeCustomer(const std::string& customerID) {
-    for (auto it = customers.begin(); it != customers.end(); ++it) {
-        if (it->getCustomerID() == customerID) {
-            customers.erase(it);
-            return;
-        }
-    }
+    customers.erase(std::remove_if(customers.begin(), customers.end(), [&](Customer* c) {
+        return c->customerID == customerID;
+        }), customers.end());
 }
 
-Account* Bank::createAccount(Customer& customer, Account* account) {
-    customer.addAccount(account);
-    accounts.push_back(account);
-    return account;
+Account* Bank::createAccount(Customer* customer, AccountType type, double initialBalance) {
+    Account* acc = AccountFactory::createAccount(type, customer, initialBalance);
+    customer->addAccount(acc);
+    accounts.push_back(acc);
+    return acc;
 }
 
-void Bank::listCustomers() const {
-    for (const auto& customer : customers) {
-        std::cout << "Customer ID: " << customer.getCustomerID() << ", Name: " << customer.getName() << std::endl;
-    }
+bool Bank::processTransaction(Transaction* transaction) {
+    return transactionManager.executeTransaction(transaction);
 }
 
-void Bank::listAccounts() const {
-    for (const auto& account : accounts) {
-        std::cout << "Account Number: " << account->getAccountNumber()
-            << ", Balance: " << account->getBalance() << std::endl;
-    }
+void Bank::generateReport() {
+    std::cout << "Generating system report...\n";
+    for (auto txn : transactionManager.transactionLog)
+        std::cout << txn->transactionID << " : " << txn->amount << " on " << txn->timestamp;
+}
+
+void Bank::notifyCustomers(const std::string& message) {
+    for (auto cust : customers)
+        cust->receiveNotification(message);
 }

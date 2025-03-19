@@ -2,21 +2,24 @@
 #define ACCOUNT_H
 
 #include <string>
+#include <vector>
+
+class Transaction;
+class Customer;
 
 class Account {
-protected:
+public:
     std::string accountNumber;
     double balance;
+    Customer* owner;
+    std::vector<Transaction*> transactions;
 
-public:
-    Account(std::string accNum, double bal) : accountNumber(accNum), balance(bal) {}
-
+    Account(const std::string& accNum, Customer* cust, double initialBalance = 0);
+    virtual ~Account() {}
     virtual void deposit(double amount) = 0;
     virtual bool withdraw(double amount) = 0;
-
-    std::string getAccountNumber() const { return accountNumber; }
-    double getBalance() const { return balance; }
+    virtual void applyInterest() = 0;
+    virtual std::string getAccountType() const = 0;
 };
 
 #endif // ACCOUNT_H
-

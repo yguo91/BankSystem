@@ -1,26 +1,31 @@
 #ifndef BANK_H
 #define BANK_H
-#define DATABASE_FILE "Data/BANK.db"
 
 #include <vector>
-#include <string>
 #include "Customer.h"
 #include "Account.h"
+#include "TransactionManager.h"
+#include "Logger.h"
+#include "ConfigManager.h"
+#include "BankFacade.h"
+#include "AccountFactory.h"
 
 class Bank {
-private:
-    std::vector<Customer> customers;
-    std::vector<Account*> accounts;
-
 public:
-    Bank() = default;
+    std::vector<Customer*> customers;
+    std::vector<Account*> accounts;
+    TransactionManager transactionManager;
+    Logger* logger;
+    ConfigManager* configManager;
+    BankFacade bankFacade;
 
-    void addCustomer(const Customer& newCustomer);
+    Bank();
+    void addCustomer(Customer* customer);
     void removeCustomer(const std::string& customerID);
-    Account* createAccount(Customer& customer, Account* account);
-    void listCustomers() const;
-    void listAccounts() const;
+    Account* createAccount(Customer* customer, AccountType type, double initialBalance);
+    bool processTransaction(Transaction* transaction);
+    void generateReport();
+    void notifyCustomers(const std::string& message);
 };
 
 #endif // BANK_H
-

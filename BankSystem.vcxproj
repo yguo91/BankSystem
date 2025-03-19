@@ -129,16 +129,56 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Account.h" />
+    <ClInclude Include="AccountFactory.h" />
     <ClInclude Include="Bank.h" />
+    <ClInclude Include="BankFacade.h" />
+    <ClInclude Include="BusinessAccount.h" />
+    <ClInclude Include="CheckingAccount.h" />
+    <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Customer.h" />
+    <ClInclude Include="CustomerNotification.h" />
     <ClInclude Include="DatabaseManager.h" />
+    <ClInclude Include="DepositCommand.h" />
+    <ClInclude Include="DepositTransaction.h" />
+    <ClInclude Include="ICommand.h" />
+    <ClInclude Include="InterestCalculator.h" />
+    <ClInclude Include="Logger.h" />
+    <ClInclude Include="Notification.h" />
+    <ClInclude Include="SavingsAccount.h" />
+    <ClInclude Include="SimpleInterestCalculator.h" />
+    <ClInclude Include="Transaction.h" />
+    <ClInclude Include="TransactionFactory.h" />
+    <ClInclude Include="TransactionManager.h" />
+    <ClInclude Include="TransferCommand.h" />
+    <ClInclude Include="TransferTransaction.h" />
+    <ClInclude Include="WithdrawalCommand.h" />
+    <ClInclude Include="WithdrawalTransaction.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Account.cpp" />
+    <ClCompile Include="AccountFactory.cpp" />
     <ClCompile Include="Bank.cpp" />
+    <ClCompile Include="BankFacade.cpp" />
+    <ClCompile Include="BusinessAccount.cpp" />
+    <ClCompile Include="CheckingAccount.cpp" />
+    <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="Customer.cpp" />
+    <ClCompile Include="CustomerNotification.cpp" />
     <ClCompile Include="DatabaseManager.cpp" />
+    <ClCompile Include="DepositCommand.cpp" />
+    <ClCompile Include="DepositTransaction.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SavingsAccount.cpp" />
+    <ClCompile Include="SimpleInterestCalculator.cpp" />
     <ClCompile Include="SQLite\sqlite3.c" />
+    <ClCompile Include="Transaction.cpp" />
+    <ClCompile Include="TransactionFactory.cpp" />
+    <ClCompile Include="TransactionManager.cpp" />
+    <ClCompile Include="TransferCommand.cpp" />
+    <ClCompile Include="TransferTransaction.cpp" />
+    <ClCompile Include="WithdrawalCommand.cpp" />
+    <ClCompile Include="WithdrawalTransaction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
