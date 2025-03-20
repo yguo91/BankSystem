@@ -13,6 +13,7 @@ public:
     double balance;
     Customer* owner;
     std::vector<Transaction*> transactions;
+    int databaseId;  // Added: stores the primary key from the database
 
     Account(const std::string& accNum, Customer* cust, double initialBalance = 0);
     virtual ~Account() {}

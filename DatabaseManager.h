@@ -27,6 +27,7 @@ public:
 
     bool updateAccountBalance(int accountId, double newBalance);
     bool transferFunds(int senderAccount, int receiverAccount, double amount);
+    int getLastInsertId();
 };
 
 #endif // DATABASE_MANAGER_H

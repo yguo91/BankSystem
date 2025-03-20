@@ -9,6 +9,7 @@
 #include "ConfigManager.h"
 #include "BankFacade.h"
 #include "AccountFactory.h"
+#include "DatabaseManager.h"  // Added for DB access
 
 class Bank {
 public:
@@ -18,8 +19,10 @@ public:
     Logger* logger;
     ConfigManager* configManager;
     BankFacade bankFacade;
+    DatabaseManager* databaseManager;  // Added database manager
 
     Bank();
+    ~Bank();
     void addCustomer(Customer* customer);
     void removeCustomer(const std::string& customerID);
     Account* createAccount(Customer* customer, AccountType type, double initialBalance);

@@ -188,3 +188,7 @@ bool DatabaseManager::transferFunds(int senderAccount, int receiverAccount, doub
     sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
     return true;
 }
+
+int DatabaseManager::getLastInsertId() {
+    return static_cast<int>(sqlite3_last_insert_rowid(db));
+}
