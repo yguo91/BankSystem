@@ -35,6 +35,40 @@ void showLoginScreen(Bank& bank, Customer*& currentCustomer) {
     Logger::getInstance()->log("User " + userID + " logged in.");
 }
 
+void showAdminNewUserRegistration(Bank& bank) {
+    cout << "=====================================\n";
+    cout << "       NEW USER REGISTRATION         \n";
+    cout << "=====================================\n";
+
+    // Since the admin is already logged in, we do not need to re-validate admin credentials.
+    string username, password, fullName, email, phone;
+    int roleChoice;
+
+    cout << "Enter new user's username: ";
+    cin >> username;
+    cout << "Enter password for new user: ";
+    cin >> password;
+    cout << "Enter full name: ";
+    cin.ignore(); // Clear the newline character.
+    getline(cin, fullName);
+    cout << "Enter email: ";
+    cin >> email;
+    cout << "Enter phone: ";
+    cin >> phone;
+	//default role is personal
+    Role newUserRole = Role::Personal;
+
+    Customer* newCustomer = bank.createNewUser(username, password, fullName, email, phone);
+
+    if (newCustomer) {
+        cout << "New user '" << username << "' created successfully.\n";
+        Logger::getInstance()->log("Admin created new user: " + username);
+    }
+    else {
+        cout << "Failed to create new user. Please check logs for details.\n";
+    }
+}
+
 void showDashboard(Bank& bank, Customer* customer) {
     int choice;
     do {
@@ -46,7 +80,8 @@ void showDashboard(Bank& bank, Customer* customer) {
             cout << "2. Close Account\n";
             cout << "3. Modify Account Details\n";
             cout << "4. View All Accounts\n";
-            cout << "5. Back to Main Menu\n";
+			cout << "5. Create New User\n";  //new ui for creating new user
+            cout << "6. Back to Main Menu\n";
             cout << "Enter choice [1-5]: ";
             cin >> choice;
             if (choice == 1) {
@@ -66,6 +101,10 @@ void showDashboard(Bank& bank, Customer* customer) {
                     cout << acc->accountNumber << " (" << acc->getAccountType() << ") - $"
                         << fixed << setprecision(2) << acc->balance << "\n";
                 }
+            }
+            else if (choice == 5) {
+                // Call the new user registration function directly from the admin dashboard.
+                showAdminNewUserRegistration(bank);            
             }
         }
         else {
@@ -171,7 +210,8 @@ void showDashboard(Bank& bank, Customer* customer) {
             }
           }
         }
-    } while (choice != 5 && choice != 7);
+    } while ((customer->role == Role::Admin && choice != 6) ||
+        (customer->role != Role::Admin && choice != 7));
 }
 
 int main() {

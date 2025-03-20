@@ -35,6 +35,11 @@ public:
     bool updateAccountDetails(Customer* customer, const std::string& accountNumber, double newBalance, double newInterestRate);
     // Apply interest to a savings account.
     bool applyInterestToAccount(Customer* customer, const std::string& accountNumber);
+    Customer* createNewUser(const std::string& username,
+        const std::string& password,
+        const std::string& fullName,
+        const std::string& email,
+        const std::string& phone);
 };
 
 #endif // BANK_H

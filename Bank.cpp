@@ -227,3 +227,21 @@ bool Bank::applyInterestToAccount(Customer* customer, const std::string& account
     }
     return false;
 }
+
+Customer* Bank::createNewUser(const std::string& username, const std::string& password, const std::string& fullName, const std::string& email, const std::string& phone)
+{
+    // Directly insert the new user into the database using the plain password.
+    if (!databaseManager->insertUser(username, password, fullName, email, phone)) {
+        logger->log("Failed to insert new user into database: " + username);
+        return nullptr;
+    }
+
+    // Create the new Customer object with the Personal role.
+    Customer* newCustomer = new Customer(username, fullName, email, phone, Role::Personal);
+
+    // Add the new customer to the Bank's customer list.
+    customers.push_back(newCustomer);
+
+    logger->log("New user created: " + username);
+    return newCustomer;
+}
