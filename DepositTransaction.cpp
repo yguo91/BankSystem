@@ -11,37 +11,20 @@ bool DepositTransaction::execute() {
         return false;
     }
 
-    // 1. Update in-memory balance
-    sourceAccount->deposit(amount);
-
-    // 2. Insert transaction + update balance in DB (if dbManager is available)
-    if (dbManager) {
-        // Insert the deposit transaction
-        if (!dbManager->insertTransaction(sourceAccount->databaseId, "deposit", amount)) {
-            // If insertion fails, revert the in-memory deposit or handle the error
-            sourceAccount->withdraw(amount);
-            status = TransactionStatus::Failed;
-            return false;
-        }
-        // Update the account balance in the DB
-        if (!dbManager->updateAccountBalance(sourceAccount->databaseId, sourceAccount->balance)) {
-            // If the balance update fails, revert the in-memory deposit or handle the error
-            sourceAccount->withdraw(amount);
-            status = TransactionStatus::Failed;
-            return false;
-        }
-    }
+    //Update in-memory balance
+    sourceAccount->deposit(amount);   
 
     status = TransactionStatus::Completed;
     return true;
 }
 
 bool DepositTransaction::rollback() {
-    if (sourceAccount->withdraw(amount)) {
-        // Also remove or log a reversal transaction in DB
-        // if dbManager is available.
-        status = TransactionStatus::Pending;
-        return true;
+    if (sourceAccount && status == TransactionStatus::Completed) {
+        // Attempt to withdraw the deposited amount
+        if (sourceAccount->withdraw(amount)) {
+            status = TransactionStatus::Pending;
+            return true;
+        }
     }
     return false;
 }
