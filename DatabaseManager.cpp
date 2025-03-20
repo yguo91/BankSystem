@@ -192,3 +192,29 @@ bool DatabaseManager::transferFunds(int senderAccount, int receiverAccount, doub
 int DatabaseManager::getLastInsertId() {
     return static_cast<int>(sqlite3_last_insert_rowid(db));
 }
+
+bool DatabaseManager::deleteAccount(int accountId) {
+    std::string sql = "DELETE FROM accounts WHERE account_id = ?;";
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        return false;
+    }
+    sqlite3_bind_int(stmt, 1, accountId);
+    int exit = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    return exit == SQLITE_DONE;
+}
+
+bool DatabaseManager::updateAccount(int accountId, double newBalance, double newInterestRate) {
+    std::string sql = "UPDATE accounts SET balance = ?, interest_rate = ? WHERE account_id = ?;";
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        return false;
+    }
+    sqlite3_bind_double(stmt, 1, newBalance);
+    sqlite3_bind_double(stmt, 2, newInterestRate);
+    sqlite3_bind_int(stmt, 3, accountId);
+    int exit = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    return exit == SQLITE_DONE;
+}

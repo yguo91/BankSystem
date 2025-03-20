@@ -1,4 +1,7 @@
 #include <iostream>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 #include "Bank.h"
 #include "Customer.h"
 #include "SavingsAccount.h"
@@ -27,7 +30,7 @@ void showLoginScreen(Bank& bank, Customer*& currentCustomer) {
     }
     bank.addCustomer(currentCustomer);
     if (currentCustomer->role != Role::Admin) {
-        bank.createAccount(currentCustomer, AccountType::Savings, 5000.0);
+        bank.createAccount(currentCustomer, AccountType::Checking, 1000.0);
     }
     Logger::getInstance()->log("User " + userID + " logged in.");
 }
@@ -60,7 +63,8 @@ void showDashboard(Bank& bank, Customer* customer) {
             else if (choice == 4) {
                 cout << "Listing all accounts:\n";
                 for (auto acc : bank.accounts) {
-                    cout << acc->accountNumber << " (" << acc->getAccountType() << ") - $" << acc->balance << "\n";
+                    cout << acc->accountNumber << " (" << acc->getAccountType() << ") - $"
+                        << fixed << setprecision(2) << acc->balance << "\n";
                 }
             }
         }
@@ -69,10 +73,14 @@ void showDashboard(Bank& bank, Customer* customer) {
             cout << " Welcome, " << customer->name << " (Personal Client)\n";
             cout << "-------------------------------------\n";
             if (!customer->accounts.empty()) {
-                Account* acc = customer->accounts[0];
-                cout << "Account: " << acc->accountNumber << " (" << acc->getAccountType() << ")\n";
-                cout << "Balance: $" << acc->balance << "\n";
-                cout << "Last Login: " << "2025-01-20 14:30\n";
+                cout << "Accounts:\n";
+                for (auto acc : customer->accounts) {
+                    cout << " - " << acc->accountNumber << " (" << acc->getAccountType()
+                        << ") - $" << fixed << setprecision(2) << acc->balance << "\n";
+                }
+            }
+            else {
+                cout << "No accounts available.\n";
             }
             cout << "=====================================\n";
             cout << "1. Account Overview\n";
@@ -82,7 +90,10 @@ void showDashboard(Bank& bank, Customer* customer) {
             cout << "5. Transaction History\n";
             cout << "6. Account Settings\n";
             cout << "7. Logout\n";
-            cout << "Enter choice [1-7]: ";
+            cout << "8. Delete Account\n";
+            cout << "9. Update Account Details\n";
+            cout << "10. Apply Interest (Savings only)\n";
+            cout << "Enter choice: ";
             cin >> choice;
             BankFacade facade = bank.bankFacade;
             switch (choice) {
@@ -126,7 +137,39 @@ void showDashboard(Bank& bank, Customer* customer) {
                 break;
             default:
                 cout << "Invalid choice.\n";
+                break;
+            case 8: {
+                cout << "Enter account number to delete: ";
+                string accNum; cin >> accNum;
+                if (bank.deleteAccount(customer, accNum))
+                    cout << "Account deleted successfully.\n";
+                else
+                    cout << "Failed to delete account.\n";
+                break;
             }
+            case 9: {
+                cout << "Enter account number to update: ";
+                string accNum; cin >> accNum;
+                cout << "Enter new balance: $";
+                double newBalance; cin >> newBalance;
+                cout << "Enter new interest rate (if applicable, else 0): ";
+                double newInterestRate; cin >> newInterestRate;
+                if (bank.updateAccountDetails(customer, accNum, newBalance, newInterestRate))
+                    cout << "Account updated successfully.\n";
+                else
+                    cout << "Failed to update account.\n";
+                break;
+            }
+            case 10: {
+                cout << "Enter savings account number to apply interest: ";
+                string accNum; cin >> accNum;
+                if (bank.applyInterestToAccount(customer, accNum))
+                    cout << "Interest applied successfully.\n";
+                else
+                    cout << "Failed to apply interest.\n";
+                break;
+            }
+          }
         }
     } while (choice != 5 && choice != 7);
 }

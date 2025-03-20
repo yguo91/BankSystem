@@ -28,6 +28,8 @@ public:
     bool updateAccountBalance(int accountId, double newBalance);
     bool transferFunds(int senderAccount, int receiverAccount, double amount);
     int getLastInsertId();
+    bool deleteAccount(int accountId);
+    bool updateAccount(int accountId, double newBalance, double newInterestRate);
 };
 
 #endif // DATABASE_MANAGER_H

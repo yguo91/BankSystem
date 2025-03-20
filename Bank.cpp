@@ -68,7 +68,6 @@ Account* Bank::createAccount(Customer* customer, AccountType type, double initia
 
     if (databaseManager->insertAccount(userId, acc->accountNumber, accountTypeStr, initialBalance, interestRate)) {
         // After a successful insertion, set the account's databaseId.
-        // This assumes you have added a method like getLastInsertId() to DatabaseManager.
         acc->databaseId = databaseManager->getLastInsertId();
     }
     else {
@@ -139,4 +138,92 @@ void Bank::generateReport() {
 void Bank::notifyCustomers(const std::string& message) {
     for (auto cust : customers)
         cust->receiveNotification(message);
+}
+
+// Delete (Close) Account
+bool Bank::deleteAccount(Customer* customer, const std::string& accountNumber) {
+    // Find the account in customer's account list.
+    auto it = std::find_if(customer->accounts.begin(), customer->accounts.end(),
+        [&](Account* a) { return a->accountNumber == accountNumber; });
+    if (it != customer->accounts.end()) {
+        Account* account = *it;
+        // Remove from database.
+        if (databaseManager->deleteAccount(account->databaseId)) {
+            // Remove from Bank's account vector.
+            accounts.erase(std::remove(accounts.begin(), accounts.end(), account), accounts.end());
+            // Remove from customer's account list.
+            customer->removeAccount(accountNumber);
+            Logger::getInstance()->log("Deleted account: " + account->accountNumber);
+            // Free memory if appropriate.
+            delete account;
+            return true;
+        }
+        else {
+            Logger::getInstance()->log("Failed to delete account in database: " + account->accountNumber);
+        }
+    }
+    else {
+        Logger::getInstance()->log("Account not found: " + accountNumber);
+    }
+    return false;
+}
+
+// Update Account Details
+bool Bank::updateAccountDetails(Customer* customer, const std::string& accountNumber, double newBalance, double newInterestRate) {
+    // Locate the account.
+    auto it = std::find_if(customer->accounts.begin(), customer->accounts.end(),
+        [&](Account* a) { return a->accountNumber == accountNumber; });
+    if (it != customer->accounts.end()) {
+        Account* account = *it;
+        // Update in-memory details.
+        account->balance = newBalance;
+        // If this is a savings account, update the interest rate.
+        if (account->getAccountType() == "Savings") {
+            SavingsAccount* sAcc = dynamic_cast<SavingsAccount*>(account);
+            if (sAcc) {
+                sAcc->interestRate = newInterestRate;
+            }
+        }
+        // Update the database.
+        if (databaseManager->updateAccount(account->databaseId, newBalance, newInterestRate)) {
+            Logger::getInstance()->log("Updated account details for: " + account->accountNumber);
+            return true;
+        }
+        else {
+            Logger::getInstance()->log("Failed to update account details in database for: " + account->accountNumber);
+        }
+    }
+    else {
+        Logger::getInstance()->log("Account not found for update: " + accountNumber);
+    }
+    return false;
+}
+
+// Apply Interest to a Savings Account
+bool Bank::applyInterestToAccount(Customer* customer, const std::string& accountNumber) {
+    // Locate the account.
+    auto it = std::find_if(customer->accounts.begin(), customer->accounts.end(),
+        [&](Account* a) { return a->accountNumber == accountNumber; });
+    if (it != customer->accounts.end()) {
+        Account* account = *it;
+        if (account->getAccountType() == "Savings") {
+            // Call the account's applyInterest function.
+            account->applyInterest();
+            // Update the new balance in the database.
+            if (databaseManager->updateAccountBalance(account->databaseId, account->balance)) {
+                Logger::getInstance()->log("Applied interest to account: " + account->accountNumber);
+                return true;
+            }
+            else {
+                Logger::getInstance()->log("Failed to update account balance after applying interest for: " + account->accountNumber);
+            }
+        }
+        else {
+            Logger::getInstance()->log("Interest can only be applied to Savings accounts: " + account->accountNumber);
+        }
+    }
+    else {
+        Logger::getInstance()->log("Account not found for applying interest: " + accountNumber);
+    }
+    return false;
 }

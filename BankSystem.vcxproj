@@ -134,6 +134,7 @@
     <ClInclude Include="BankFacade.h" />
     <ClInclude Include="BusinessAccount.h" />
     <ClInclude Include="CheckingAccount.h" />
+    <ClInclude Include="CompoundInterestCalculator.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Customer.h" />
     <ClInclude Include="CustomerNotification.h" />
@@ -161,6 +162,7 @@
     <ClCompile Include="BankFacade.cpp" />
     <ClCompile Include="BusinessAccount.cpp" />
     <ClCompile Include="CheckingAccount.cpp" />
+    <ClCompile Include="CompoundInterestCalculator.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="Customer.cpp" />
     <ClCompile Include="CustomerNotification.cpp" />

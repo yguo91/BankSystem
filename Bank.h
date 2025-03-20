@@ -29,6 +29,12 @@ public:
     bool processTransaction(Transaction* transaction);
     void generateReport();
     void notifyCustomers(const std::string& message);
+    // Delete an account belonging to a customer.
+    bool deleteAccount(Customer* customer, const std::string& accountNumber);
+    // Update account details (for example, balance or interest rate) for an account.
+    bool updateAccountDetails(Customer* customer, const std::string& accountNumber, double newBalance, double newInterestRate);
+    // Apply interest to a savings account.
+    bool applyInterestToAccount(Customer* customer, const std::string& accountNumber);
 };
 
 #endif // BANK_H
