@@ -34,7 +34,7 @@ public:
     // Delete an account belonging to a customer.
     bool deleteAccount(Customer* customer, const std::string& accountNumber);
     // Update account details (for example, balance or interest rate) for an account.
-    bool updateAccountDetails(Customer* customer, const std::string& accountNumber, double newBalance, double newInterestRate);
+    bool updateAccountDetails(Customer* currentUser, const std::string& accountNumber, double newBalance, double newInterestRate);
     // Apply interest to a savings account.
     bool applyInterestToAccount(Customer* customer, const std::string& accountNumber);
     Customer* createNewUser(const std::string& username,
@@ -43,11 +43,10 @@ public:
         const std::string& email,
         const std::string& phone);
 
-	DatabaseManager* getDatabaseManager() const;  // Getter for database manager
+    DatabaseManager* getDatabaseManager() const;  // Getter for database manager
 
     Customer* findCustomerById(const std::string& id);
 
-    Account* findAccountByNumber(const std::string& accountNumber);
 };
 
 #endif // BANK_H
