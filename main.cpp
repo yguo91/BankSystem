@@ -248,7 +248,7 @@ void showDashboard(Bank& bank, Customer* customer) {
                 cout << "Enter transfer amount: $";
                 double amt;
                 cin >> amt;
-                facade.performTransfer(&bank, customer, sourceAcc, destAcc, amt);
+                facade.performTransfer(customer, sourceAcc, destAcc, amt);
                 break;
             }
             case 5: {

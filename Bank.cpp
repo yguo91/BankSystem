@@ -5,6 +5,7 @@
 #include "DepositTransaction.h"
 #include "WithdrawalTransaction.h"
 #include "TransferTransaction.h"
+#include "Transaction.h"
 
 Bank::Bank() {
     logger = Logger::getInstance();

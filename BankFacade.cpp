@@ -34,6 +34,7 @@ void BankFacade::performDeposit(Customer* customer, const std::string& accountNu
 // Withdrawal function now accepts an account number.
 void BankFacade::performWithdrawal(Customer* customer, const std::string& accountNumber, double amount) {
     Account* account = nullptr;
+    // Find the account with the specified account number
     for (auto acc : customer->accounts) {
         if (acc->accountNumber == accountNumber) {
             account = acc;
@@ -50,9 +51,11 @@ void BankFacade::performWithdrawal(Customer* customer, const std::string& accoun
     Logger::getInstance()->log("Withdrew $" + std::to_string(amount) + " from account " + account->accountNumber);
 }
 
+
+
 // Transfer function now accepts a Bank pointer to look up the destination account.
-void BankFacade::performTransfer(Bank* bank, Customer* customer, const std::string& sourceAccNum, const std::string& destAccNum, double amount) {
-    // Find source account in customer's accounts.
+void BankFacade::performTransfer(Customer* customer, const std::string& sourceAccNum, const std::string& destAccNum, double amount) {
+    // Find the source account in customer's accounts.
     Account* sourceAccount = nullptr;
     for (auto acc : customer->accounts) {
         if (acc->accountNumber == sourceAccNum) {
@@ -65,7 +68,7 @@ void BankFacade::performTransfer(Bank* bank, Customer* customer, const std::stri
         return;
     }
 
-    // Use bank's function to find the destination account.
+    // Find the destination account in customer's accounts.
     Account* destAccount = nullptr;
     for (auto acc : customer->accounts) {
         if (acc->accountNumber == destAccNum) {
