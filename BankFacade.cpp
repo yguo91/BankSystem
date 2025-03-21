@@ -65,7 +65,13 @@ void BankFacade::performTransfer(Bank* bank, Customer* customer, const std::stri
     }
 
     // Use bank's function to find the destination account.
-    Account* destAccount = bank->findAccountByNumber(destAccNum);
+    Account* destAccount = nullptr;
+    for (auto acc : customer->accounts) {
+        if (acc->accountNumber == destAccNum) {
+            destAccount = acc;
+            break;
+        }
+    }
     if (!destAccount) {
         std::cout << "Destination account " << destAccNum << " not found.\n";
         return;
