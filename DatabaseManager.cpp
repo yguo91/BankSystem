@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <stdio.h>
 #include <sys/stat.h>
+#include "Customer.h"
 
 #define DATABASE_FILE "Data/BANK.db"
 
@@ -217,4 +218,74 @@ bool DatabaseManager::updateAccount(int accountId, double newBalance, double new
     int exit = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
     return exit == SQLITE_DONE;
+}
+
+bool DatabaseManager::validateUser(const std::string& userID, const std::string& password) {
+    // Convert the userID (string) to an integer
+    int uid;
+    try {
+        uid = std::stoi(userID);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Invalid user ID format." << std::endl;
+        return false;
+    }
+
+    std::string sql = "SELECT password_hash FROM users WHERE user_id = ?;";
+    sqlite3_stmt* stmt;
+    int exit = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
+    sqlite3_bind_int(stmt, 1, uid);
+    exit = sqlite3_step(stmt);
+
+    if (exit == SQLITE_ROW) {
+        // Retrieve the stored plain-text password (from the password_hash column)
+        const unsigned char* dbPassword = sqlite3_column_text(stmt, 0);
+        bool valid = (password == reinterpret_cast<const char*>(dbPassword));
+        sqlite3_finalize(stmt);
+        return valid;
+    }
+    else {
+        sqlite3_finalize(stmt);
+        return false;  // User not found or query error
+    }
+}
+
+Customer* DatabaseManager::getUser(const std::string& userID) {
+    int uid;
+    try {
+        uid = std::stoi(userID);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Invalid user ID format." << std::endl;
+        return nullptr;
+    }
+
+    std::string sql = "SELECT user_id, full_name, email, phone FROM users WHERE user_id = ?;";
+    sqlite3_stmt* stmt;
+    int exit = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error preparing statement in getUser: " << sqlite3_errmsg(db) << std::endl;
+        return nullptr;
+    }
+
+    sqlite3_bind_int(stmt, 1, uid);
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        // Retrieve columns: user_id, full_name, email, phone
+        int dbUserID = sqlite3_column_int(stmt, 0);
+        std::string fullName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string email = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string phone = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        sqlite3_finalize(stmt);
+        // Create a Customer using the user_id (converted back to string)
+        return new Customer(std::to_string(dbUserID), fullName, email, phone, Role::Personal);
+    }
+    else {
+        sqlite3_finalize(stmt);
+        return nullptr;
+    }
 }

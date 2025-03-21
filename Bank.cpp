@@ -245,3 +245,7 @@ Customer* Bank::createNewUser(const std::string& username, const std::string& pa
     logger->log("New user created: " + username);
     return newCustomer;
 }
+
+DatabaseManager* Bank::getDatabaseManager() const {
+    return databaseManager;
+}

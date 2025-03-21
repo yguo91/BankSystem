@@ -40,6 +40,8 @@ public:
         const std::string& fullName,
         const std::string& email,
         const std::string& phone);
+
+	DatabaseManager* getDatabaseManager() const;  // Getter for database manager
 };
 
 #endif // BANK_H

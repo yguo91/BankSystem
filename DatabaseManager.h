@@ -30,6 +30,9 @@ public:
     int getLastInsertId();
     bool deleteAccount(int accountId);
     bool updateAccount(int accountId, double newBalance, double newInterestRate);
+
+    bool validateUser(const std::string& userID, const std::string& password);
+    Customer* getUser(const std::string& userID);
 };
 
 #endif // DATABASE_MANAGER_H
