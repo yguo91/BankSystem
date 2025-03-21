@@ -4,21 +4,18 @@
 #include "Customer.h"
 #include <string>
 
-class Bank; // Forward declaration
-
 class BankFacade {
+
+private:
+    Bank* bank;
 public:
-    // Deposit into a specified account.
-    void performDeposit(Customer* customer, const std::string& accountNumber, double amount);
-
-    // Withdraw from a specified account.
-    void performWithdrawal(Customer* customer, const std::string& accountNumber, double amount);
-
-    // Transfer funds: requires a pointer to the Bank so we can find the destination account.
-    void performTransfer(Bank* bank, Customer* customer, const std::string& sourceAccNum, const std::string& destAccNum, double amount);
-
-    // Check balance for all customer's accounts.
+    void performDeposit(Customer* customer, double amount);
+    void performWithdrawal(Customer* customer, double amount);
+    void performTransfer(Customer* customer, const std::string& destAccNum, double amount);
     void checkBalance(Customer* customer);
+
+
+    BankFacade() = default;
 };
 
 #endif // BANKFACADE_H
