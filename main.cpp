@@ -216,23 +216,39 @@ void showDashboard(Bank& bank, Customer* customer) {
                 facade.checkBalance(customer);
                 break;
             case 2: {
-                cout << "DEPOSIT FUNDS\nEnter deposit amount: $";
-                double amt; cin >> amt;
-                facade.performDeposit(customer, amt);
+                cout << "\nDEPOSIT FUNDS\n";
+                cout << "Enter the account number to deposit into: ";
+                string accNum;
+                cin >> accNum;
+                cout << "Enter deposit amount: $";
+                double amt;
+                cin >> amt;
+                facade.performDeposit(customer, accNum, amt);
                 break;
             }
             case 3: {
-                cout << "WITHDRAW FUNDS\nEnter withdrawal amount: $";
-                double amt; cin >> amt;
-                facade.performWithdrawal(customer, amt);
+                cout << "\nWITHDRAW FUNDS\n";
+                cout << "Enter the account number to withdraw from: ";
+                string accNum;
+                cin >> accNum;
+                cout << "Enter withdrawal amount: $";
+                double amt;
+                cin >> amt;
+                facade.performWithdrawal(customer, accNum, amt);
                 break;
             }
             case 4: {
-                cout << "TRANSFER FUNDS\nEnter destination account number: ";
-                string destAcc; cin >> destAcc;
+                cout << "\nTRANSFER FUNDS\n";
+                cout << "Enter source account number: ";
+                string sourceAcc;
+                cin >> sourceAcc;
+                cout << "Enter destination account number: ";
+                string destAcc;
+                cin >> destAcc;
                 cout << "Enter transfer amount: $";
-                double amt; cin >> amt;
-                facade.performTransfer(customer, destAcc, amt);
+                double amt;
+                cin >> amt;
+                facade.performTransfer(&bank, customer, sourceAcc, destAcc, amt);
                 break;
             }
             case 5: {

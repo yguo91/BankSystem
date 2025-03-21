@@ -290,3 +290,16 @@ Customer* Bank::findCustomerById(const std::string& id)
     }
     return dbCustomer;
 }
+
+// Implementation of findAccountByNumber
+Account* Bank::findAccountByNumber(const std::string& accountNumber) {
+    // Search the bank's accounts vector.
+    auto it = std::find_if(accounts.begin(), accounts.end(),
+        [&accountNumber](Account* acc) {
+            return acc->accountNumber == accountNumber;
+        });
+    if (it != accounts.end()) {
+        return *it;
+    }
+    return nullptr;
+}

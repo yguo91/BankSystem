@@ -46,6 +46,8 @@ public:
 	DatabaseManager* getDatabaseManager() const;  // Getter for database manager
 
     Customer* findCustomerById(const std::string& id);
+
+    Account* findAccountByNumber(const std::string& accountNumber);
 };
 
 #endif // BANK_H
