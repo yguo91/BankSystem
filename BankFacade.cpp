@@ -1,4 +1,5 @@
 #include "BankFacade.h"
+#include "Bank.h"
 #include "DepositCommand.h"
 #include "WithdrawalCommand.h"
 #include "TransferCommand.h"
@@ -16,7 +17,7 @@ void BankFacade::performDeposit(Customer* customer, double amount) {
     }
     Account* account = customer->accounts[0];
     TransactionManager tm;
-    DepositCommand cmd(account, amount, &tm);
+    DepositCommand cmd(account, amount, &tm, bank);
     cmd.execute();
     Logger::getInstance()->log("Deposited $" + std::to_string(amount) + " into account " + account->accountNumber);
 }

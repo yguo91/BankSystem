@@ -47,6 +47,8 @@ public:
 
     Customer* findCustomerById(const std::string& id);
 
+    // Add this function declaration in the Bank class to hanle the transactions
+    bool updateTransactionInDB(Transaction* transaction);
 };
 
 #endif // BANK_H
