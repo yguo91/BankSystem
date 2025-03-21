@@ -11,7 +11,7 @@ bool TransactionManager::executeTransaction(Transaction* transaction) {
         transactionLog.push_back(transaction);
         return result;
     }
-    return false;
+    return false;   
 }
 
 bool TransactionManager::rollbackTransaction(Transaction* transaction) {
