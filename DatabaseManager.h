@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include "Customer.h"
+#include "Account.h"
 
 class DatabaseManager {
 private:
@@ -37,6 +38,8 @@ public:
     Customer* getUser(const std::string& userID);
 
     sqlite3* getDB() const { return db; }
+
+    std::vector<Account*> getAccountsForUser(const std::string& userID);
 };
 
 #endif // DATABASE_MANAGER_H

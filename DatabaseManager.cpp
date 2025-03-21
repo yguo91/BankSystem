@@ -3,6 +3,11 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include "Customer.h"
+#include <algorithm>  // needed for std::transform
+#include <cctype>
+#include "SavingsAccount.h"
+#include "CheckingAccount.h"
+#include "BusinessAccount.h"
 
 #define DATABASE_FILE "Data/BANK.db"
 
@@ -289,4 +294,62 @@ Customer* DatabaseManager::getUser(const std::string& userID)
         sqlite3_finalize(stmt);
         return nullptr;
     }
+}
+
+std::vector<Account*> DatabaseManager::getAccountsForUser(const std::string& userID)
+{
+    std::vector<Account*> accounts;
+    int uid;
+    try {
+        uid = std::stoi(userID);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Invalid user ID format in getAccountsForUser." << std::endl;
+        return accounts;
+    }
+
+    std::string sql = "SELECT account_id, account_number, account_type, balance, interest_rate FROM accounts WHERE user_id = ?;";
+    sqlite3_stmt* stmt;
+    int exitCode = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (exitCode != SQLITE_OK) {
+        std::cerr << "Error preparing statement in getAccountsForUser: " << sqlite3_errmsg(db) << std::endl;
+        return accounts;
+    }
+
+    sqlite3_bind_int(stmt, 1, uid);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int accountId = sqlite3_column_int(stmt, 0);
+        std::string accountNumber = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string accountType = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        double balance = sqlite3_column_double(stmt, 3);
+        double interestRate = sqlite3_column_double(stmt, 4);
+
+        // Convert accountType to lowercase for comparison
+        std::string typeLower = accountType;
+        std::transform(typeLower.begin(), typeLower.end(), typeLower.begin(), ::tolower);
+
+        Account* account = nullptr;
+        if (typeLower == "savings") {
+            // SavingsAccount: constructor (accountNumber, owner, initialBalance, interestRate)
+            account = new SavingsAccount(accountNumber, nullptr, balance, interestRate);
+        }
+        else if (typeLower == "chequing") {
+            // CheckingAccount: constructor (accountNumber, owner, initialBalance)
+            account = new CheckingAccount(accountNumber, nullptr, balance);
+        }
+        else if (typeLower == "business") {
+            // BusinessAccount: constructor (accountNumber, owner, initialBalance, limit, fee)
+            account = new BusinessAccount(accountNumber, nullptr, balance);
+        }
+        // Add other account types if needed.
+
+        if (account) {
+            account->databaseId = accountId;
+            accounts.push_back(account);
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    return accounts;
 }

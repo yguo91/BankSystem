@@ -28,6 +28,11 @@ void Bank::addCustomer(Customer* customer) {
     }
 }
 
+void Bank::cacheCustomer(Customer* customer)
+{
+    customers.push_back(customer);
+}
+
 void Bank::removeCustomer(const std::string& customerID) {
     customers.erase(std::remove_if(customers.begin(), customers.end(), [&](Customer* c) {
         return c->customerID == customerID;
@@ -272,9 +277,15 @@ Customer* Bank::findCustomerById(const std::string& id)
             return cust;
         }
     }
-	// If not found in memory, check the database.
+    // Retrieve the customer from the database.
     Customer* dbCustomer = databaseManager->getUser(id);
     if (dbCustomer) {
+        // Retrieve and attach accounts to the customer.
+        std::vector<Account*> accList = databaseManager->getAccountsForUser(id);
+        for (Account* acc : accList) {
+            acc->owner = dbCustomer;     // Set the owner pointer
+            dbCustomer->addAccount(acc); // Add the account to customer's account vector
+        }
         customers.push_back(dbCustomer);
     }
     return dbCustomer;

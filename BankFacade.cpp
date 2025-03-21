@@ -53,7 +53,9 @@ void BankFacade::checkBalance(Customer* customer) {
         std::cout << "No accounts available.\n";
         return;
     }
-    Account* account = customer->accounts[0];
-    std::cout << "Account: " << account->accountNumber << "\nType: " << account->getAccountType()
-        << "\nBalance: $" << account->balance << "\n";
+    for (auto account : customer->accounts) {
+        std::cout << "Account: " << account->accountNumber 
+                  << "\nType: " << account->getAccountType()
+                  << "\nBalance: $" << account->balance << "\n";
+    }
 }

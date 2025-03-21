@@ -29,22 +29,15 @@ void showLoginScreen(Bank& bank, Customer*& currentCustomer) {
         //currentCustomer = new Customer(userID, "User " + userID, userID + "@bank.com", "1234567890", Role::Personal);
         // Validate credentials using the DatabaseManager with userID
         if (bank.getDatabaseManager()->validateUser(userID, password)) {
-            // Retrieve user details from the database using userID
-            Customer* userFromDB = bank.getDatabaseManager()->getUser(userID);
+            Customer* userFromDB = bank.findCustomerById(userID);
             if (userFromDB) {
                 currentCustomer = userFromDB;
-                bank.addCustomer(currentCustomer);
             }
             else {
                 std::cout << "User details could not be retrieved from the database." << std::endl;
                 currentCustomer = nullptr;
                 return;
             }
-        }
-        else {
-            std::cout << "Invalid user ID or password. Please try again.\n";
-            currentCustomer = nullptr;
-            return;
         }
     }
     //bank.addCustomer(currentCustomer);
