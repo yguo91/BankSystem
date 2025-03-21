@@ -7,8 +7,11 @@
 #include "SavingsAccount.h"
 #include "BankFacade.h"
 #include "Logger.h"
+#include <conio.h>
 
 using namespace std;
+
+std::string getPasswordInput();
 
 void showLoginScreen(Bank& bank, Customer*& currentCustomer) {
     cout << "=====================================\n";
@@ -17,10 +20,7 @@ void showLoginScreen(Bank& bank, Customer*& currentCustomer) {
     cout << "Enter User ID: ";
     string userID;
     cin >> userID;
-    cout << "Enter Password: ";
-    string password;
-    // For demo, we simulate password masking.
-    cin >> password;
+    std::string password = getPasswordInput();
 
     if (userID == "admin") {
         currentCustomer = new Customer(userID, "Administrator", "admin@bank.com", "000-0000", Role::Admin);
@@ -81,6 +81,28 @@ void showAdminNewUserRegistration(Bank& bank) {
     }
 }
 
+// Function to securely get password input from the user
+std::string getPasswordInput() {
+    std::string password;
+    char ch;
+    std::cout << "Enter Password: ";
+    while ((ch = _getch()) != '\r') { // '\r' is carriage return, equivalent to Enter key
+        if (ch == '\b') { // Handle backspace
+            if (!password.empty()) {
+                password.pop_back();
+                std::cout << "\b \b"; // Erase character from console
+            }
+        }
+        else {
+            password.push_back(ch);
+            std::cout << '*';
+        }
+    }
+    std::cout << std::endl;
+    return password;
+}
+
+
 void showDashboard(Bank& bank, Customer* customer) {
     int choice;
     do {
@@ -92,9 +114,10 @@ void showDashboard(Bank& bank, Customer* customer) {
             cout << "2. Close Account\n";
             cout << "3. Modify Account Details\n";
             cout << "4. View All Accounts\n";
-			cout << "5. Create New User\n";  //new ui for creating new user
-            cout << "6. Back to Main Menu\n";
-            cout << "Enter choice [1-5]: ";
+            cout << "5. Create New User\n";  //new ui for creating new user
+            cout << "6. Apply Interest (Savings only)\n";
+            cout << "7. Back to Main Menu\n";
+            cout << "Enter choice [1-7]: ";
             cin >> choice;
             if (choice == 1) {
                 cout << "Enter Account Type [1] Savings [2] Checking [3] Business: ";
@@ -120,6 +143,26 @@ void showDashboard(Bank& bank, Customer* customer) {
                 bank.createAccount(customer, type, initBal);
                 Logger::getInstance()->log("Admin created new account for customer " + custID);*/
             }
+            else if (choice == 2) {
+                cout << "Enter Account Number to close: ";
+                string accNum; cin >> accNum;
+                if (bank.deleteAccount(customer, accNum))
+                    cout << "Account closed successfully.\n";
+                else
+                    cout << "Failed to close account.\n";
+            }
+            else if (choice == 3) {
+                cout << "Enter Account Number to modify: ";
+                string accNum; cin >> accNum;
+                cout << "Enter new balance: $";
+                double newBalance; cin >> newBalance;
+                cout << "Enter new interest rate (if applicable, else 0): ";
+                double newInterestRate; cin >> newInterestRate;
+                if (bank.updateAccountDetails(customer, accNum, newBalance, newInterestRate))
+                    cout << "Account modified successfully.\n";
+                else
+                    cout << "Failed to modify account.\n";
+            }
             else if (choice == 4) {
                 cout << "Listing all accounts:\n";
                 for (auto acc : bank.accounts) {
@@ -129,9 +172,21 @@ void showDashboard(Bank& bank, Customer* customer) {
             }
             else if (choice == 5) {
                 // Call the new user registration function directly from the admin dashboard.
-                showAdminNewUserRegistration(bank);            
+                showAdminNewUserRegistration(bank);
+            }
+            else if (choice == 6) {
+                cout << "Enter savings account number to apply interest: ";
+                string accNum; cin >> accNum;
+                if (bank.applyInterestToAccount(customer, accNum))
+                    cout << "Interest applied successfully.\n";
+                else
+                    cout << "Failed to apply interest.\n";
+            }
+            else if (choice == 7) {
+                break;
             }
         }
+
         else {
             cout << "=====================================\n";
             cout << " Welcome, " << customer->name << " (Personal Client)\n";
@@ -152,11 +207,7 @@ void showDashboard(Bank& bank, Customer* customer) {
             cout << "3. Withdraw Funds\n";
             cout << "4. Transfer Money\n";
             cout << "5. Transaction History\n";
-            cout << "6. Account Settings\n";
             cout << "7. Logout\n";
-            cout << "8. Delete Account\n";
-            cout << "9. Update Account Details\n";
-            cout << "10. Apply Interest (Savings only)\n";
             cout << "Enter choice: ";
             cin >> choice;
             BankFacade facade = bank.bankFacade;
@@ -177,11 +228,11 @@ void showDashboard(Bank& bank, Customer* customer) {
                 break;
             }
             case 4: {
-                cout << "TRANSFER MONEY\nEnter destination account number: ";
-                string dest; cin >> dest;
+                cout << "TRANSFER FUNDS\nEnter destination account number: ";
+                string destAcc; cin >> destAcc;
                 cout << "Enter transfer amount: $";
                 double amt; cin >> amt;
-                facade.performTransfer(customer, dest, amt);
+                facade.performTransfer(customer, destAcc, amt);
                 break;
             }
             case 5: {
@@ -192,51 +243,15 @@ void showDashboard(Bank& bank, Customer* customer) {
                 }
                 break;
             }
-            case 6: {
-                cout << "Account Settings (Not fully implemented in demo)\n";
-                break;
-            }
             case 7:
                 cout << "Logging out...\n";
                 break;
             default:
                 cout << "Invalid choice.\n";
                 break;
-            case 8: {
-                cout << "Enter account number to delete: ";
-                string accNum; cin >> accNum;
-                if (bank.deleteAccount(customer, accNum))
-                    cout << "Account deleted successfully.\n";
-                else
-                    cout << "Failed to delete account.\n";
-                break;
             }
-            case 9: {
-                cout << "Enter account number to update: ";
-                string accNum; cin >> accNum;
-                cout << "Enter new balance: $";
-                double newBalance; cin >> newBalance;
-                cout << "Enter new interest rate (if applicable, else 0): ";
-                double newInterestRate; cin >> newInterestRate;
-                if (bank.updateAccountDetails(customer, accNum, newBalance, newInterestRate))
-                    cout << "Account updated successfully.\n";
-                else
-                    cout << "Failed to update account.\n";
-                break;
-            }
-            case 10: {
-                cout << "Enter savings account number to apply interest: ";
-                string accNum; cin >> accNum;
-                if (bank.applyInterestToAccount(customer, accNum))
-                    cout << "Interest applied successfully.\n";
-                else
-                    cout << "Failed to apply interest.\n";
-                break;
-            }
-          }
         }
-    } while ((customer->role == Role::Admin && choice != 6) ||
-        (customer->role != Role::Admin && choice != 7));
+    } while (choice != 7);
 }
 
 int main() {
