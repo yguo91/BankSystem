@@ -54,6 +54,9 @@ public:
     Account* getAccountByAccountNumber(const std::string& accountNumber);
 
     std::vector<TransactionRecord> getTransactionsForAccount(int accountId);
+
+    // Retrieves all accounts from the database.
+    std::vector<Account*> getAllAccounts();
 };
 
 #endif // DATABASE_MANAGER_H

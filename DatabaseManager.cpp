@@ -430,3 +430,46 @@ std::vector<TransactionRecord> DatabaseManager::getTransactionsForAccount(int ac
     sqlite3_finalize(stmt);
     return records;
 }
+
+std::vector<Account*> DatabaseManager::getAllAccounts()
+{
+    std::vector<Account*> accounts;
+    std::string sql = "SELECT account_id, account_number, account_type, balance, interest_rate FROM accounts;";
+    sqlite3_stmt* stmt;
+    int exitCode = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (exitCode != SQLITE_OK) {
+        std::cerr << "Error preparing statement in getAllAccounts: " << sqlite3_errmsg(db) << std::endl;
+        return accounts;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int accountId = sqlite3_column_int(stmt, 0);
+        std::string accountNumber = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string accountType = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        double balance = sqlite3_column_double(stmt, 3);
+        double interestRate = sqlite3_column_double(stmt, 4);
+
+        Account* account = nullptr;
+		// Convert accountType to lowercase for comparison
+        std::string typeLower = accountType;
+        std::transform(typeLower.begin(), typeLower.end(), typeLower.begin(), ::tolower);
+        if (typeLower == "savings") {
+            account = new SavingsAccount(accountNumber, nullptr, balance, interestRate);
+        }
+        else if (typeLower == "chequing") {
+            account = new CheckingAccount(accountNumber, nullptr, balance);
+        }
+        else if (typeLower == "business") {
+            account = new BusinessAccount(accountNumber, nullptr, balance);
+        }
+		// Add other account types if needed.
+
+        if (account) {
+            account->databaseId = accountId;
+            accounts.push_back(account);
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    return accounts;
+}

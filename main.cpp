@@ -164,10 +164,15 @@ void showDashboard(Bank& bank, Customer* customer) {
                     cout << "Failed to modify account.\n";
             }
             else if (choice == 4) {
-                cout << "Listing all accounts:\n";
-                for (auto acc : bank.accounts) {
+                cout << "Listing all accounts from database:\n";
+                std::vector<Account*> allAccounts = bank.getDatabaseManager()->getAllAccounts();
+                for (auto acc : allAccounts) {
                     cout << acc->accountNumber << " (" << acc->getAccountType() << ") - $"
                         << fixed << setprecision(2) << acc->balance << "\n";
+                }
+				// Free memory
+                for (auto acc : allAccounts) {
+                    delete acc;
                 }
             }
             else if (choice == 5) {
