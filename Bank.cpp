@@ -319,26 +319,20 @@ Customer* Bank::findCustomerById(const std::string& id)
     return dbCustomer;
 }
 
-bool Bank::updateTransactionInDB(DepositTransaction* transaction)
+bool Bank::updateTransactionInDB(Transaction* transaction)
 {
+    // Check if the transaction and its source account are valid
+    if (transaction == nullptr || transaction->sourceAccount == nullptr) {
+        logger->log("Invalid transaction or source account in updateTransactionInDB.");
+        return false;
+    }
+
     // bebug Log the input parameters
     logger->log("updateTransactionInDB called.");
     logger->log("Transaction ID: " + transaction->transactionID);
     logger->log("Amount: " + std::to_string(transaction->amount));
     logger->log("Source Account Number: " + transaction->sourceAccount->accountNumber);
     logger->log("Source Account Database ID: " + std::to_string(transaction->sourceAccount->databaseId));
-
-    // Check if the transaction is valid
-    if (transaction == nullptr) {
-        logger->log("updateTransactionInDB: transaction is null.");
-        return false;
-    }
-
-    // Check if the transaction and its source account are valid
-    if (transaction == nullptr || transaction->sourceAccount == nullptr) {
-        logger->log("Invalid transaction or source account in updateTransactionInDB.");
-        return false;
-    }
 
     int accountId = transaction->sourceAccount->databaseId;
     std::string transactionType;
@@ -369,54 +363,3 @@ bool Bank::updateTransactionInDB(DepositTransaction* transaction)
 
     return true;
 }
-
-//bool Bank::updateTransactionInDB(Transaction* transaction)
-//{
-//    // bebug Log the input parameters
-//    logger->log("updateTransactionInDB called.");
-//    logger->log("Transaction ID: " + transaction->transactionID);
-//    logger->log("Amount: " + std::to_string(transaction->amount));
-//    logger->log("Source Account Number: " + transaction->sourceAccount->accountNumber);
-//    logger->log("Source Account Database ID: " + std::to_string(transaction->sourceAccount->databaseId));
-//
-//    // Check if the transaction is valid
-//    if (transaction == nullptr) {
-//        logger->log("updateTransactionInDB: transaction is null.");
-//        return false;
-//    }
-//    
-//    // Check if the transaction and its source account are valid
-//    if (transaction == nullptr || transaction->sourceAccount == nullptr) {
-//        logger->log("Invalid transaction or source account in updateTransactionInDB.");
-//        return false;
-//    }
-//    
-//    int accountId = transaction->sourceAccount->databaseId;
-//    std::string transactionType;
-//
-//    // Determine the transaction type using dynamic casting
-//    if (dynamic_cast<DepositTransaction*>(transaction))
-//        transactionType = "deposit";
-//    else if (dynamic_cast<WithdrawalTransaction*>(transaction))
-//        transactionType = "withdrawal";
-//    else if (dynamic_cast<TransferTransaction*>(transaction))
-//        transactionType = "transfer";
-//    else {
-//        logger->log("Unknown transaction type in updateTransactionInDB.");
-//        return false;
-//    }
-//
-//    // Insert the transaction record into the database
-//    if (!databaseManager->insertTransaction(accountId, transactionType, transaction->amount)) {
-//        logger->log("Failed to insert transaction into database for account: " + transaction->sourceAccount->accountNumber);
-//        return false;
-//    }
-//
-//    // Update the account balance in the database based on the in-memory value
-//    if (!databaseManager->updateAccountBalance(accountId, transaction->sourceAccount->balance)) {
-//        logger->log("Failed to update account balance in database for account: " + transaction->sourceAccount->accountNumber);
-//        return false;
-//    }
-//
-//    return true;
-//}
