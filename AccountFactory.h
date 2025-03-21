@@ -6,6 +6,7 @@
 #include "CheckingAccount.h"
 #include "BusinessAccount.h"
 #include "Customer.h"
+#include "DatabaseManager.h"
 
 enum class AccountType {
     Savings,
@@ -15,6 +16,7 @@ enum class AccountType {
 
 class AccountFactory {
 public:
+    static void initializeCounter(DatabaseManager* dbManager);
     static Account* createAccount(AccountType type, Customer* owner, double initialBalance);
 };
 

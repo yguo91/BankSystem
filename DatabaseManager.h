@@ -5,6 +5,7 @@
 #include <sqlite3.h>
 #include <string>
 #include <vector>
+#include "Customer.h"
 
 class DatabaseManager {
 private:
@@ -30,6 +31,12 @@ public:
     int getLastInsertId();
     bool deleteAccount(int accountId);
     bool updateAccount(int accountId, double newBalance, double newInterestRate);
+
+    bool validateUser(const std::string& userID, const std::string& password);
+    
+    Customer* getUser(const std::string& userID);
+
+    sqlite3* getDB() const { return db; }
 };
 
 #endif // DATABASE_MANAGER_H

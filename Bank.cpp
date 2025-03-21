@@ -10,6 +10,9 @@ Bank::Bank() {
     logger = Logger::getInstance();
     configManager = ConfigManager::getInstance();
     databaseManager = new DatabaseManager(); // Initialize the database connection
+
+    // Initialize the account number counter based on the database.
+    AccountFactory::initializeCounter(databaseManager);
 }
 
 Bank::~Bank() {
@@ -31,17 +34,32 @@ void Bank::removeCustomer(const std::string& customerID) {
         }), customers.end());
 }
 
-Account* Bank::createAccount(Customer* customer, AccountType type, double initialBalance) {
-    Account* acc = AccountFactory::createAccount(type, customer, initialBalance);
-    customer->addAccount(acc);
-    accounts.push_back(acc);
+Account* Bank::createAccount(Customer* targetCustomer, AccountType type, double initialBalance, Customer* initiator) {
+	// Check if the initiator is an admin.
+    if (initiator == nullptr || initiator->role != Role::Admin) {
+        logger->log("Permission denied: Only admin can create accounts for customers.");
+        return nullptr;
+    }
+    if (targetCustomer == nullptr) {
+        logger->log("Error: Target customer is null.");
+        return nullptr;
+    }
     
-    // Determine the account type string and interest rate for the database.
+    Account* acc = AccountFactory::createAccount(type, targetCustomer, initialBalance);
+    if (!acc) {
+        logger->log("Error: Account creation failed.");
+        return nullptr;
+    }
+
+    targetCustomer->addAccount(acc);
+    accounts.push_back(acc);
+
+	// Determine the account type for logging and database insertion.
     std::string accountTypeStr;
     double interestRate = 0.0;
     if (type == AccountType::Savings) {
         accountTypeStr = "savings";
-        // Assuming SavingsAccount has an interestRate attribute:
+		// If this is a Savings account, set the interest rate.
         SavingsAccount* sAcc = dynamic_cast<SavingsAccount*>(acc);
         if (sAcc)
             interestRate = sAcc->interestRate;
@@ -56,18 +74,17 @@ Account* Bank::createAccount(Customer* customer, AccountType type, double initia
         accountTypeStr = "unknown";
     }
 
-    // Convert customer's customerID to an integer (assuming it represents a user ID).
+	// Insert the account into the database.
     int userId = 0;
     try {
-        userId = std::stoi(customer->customerID);
+        userId = std::stoi(targetCustomer->customerID);
     }
     catch (std::exception& e) {
-        // Handle the conversion error as needed.
-        logger->log("Error converting customerID to integer: " + customer->customerID);
+        logger->log("Error converting customerID to integer: " + targetCustomer->customerID);
     }
 
     if (databaseManager->insertAccount(userId, acc->accountNumber, accountTypeStr, initialBalance, interestRate)) {
-        // After a successful insertion, set the account's databaseId.
+		// Set the database ID for the account.
         acc->databaseId = databaseManager->getLastInsertId();
     }
     else {
@@ -75,8 +92,6 @@ Account* Bank::createAccount(Customer* customer, AccountType type, double initia
     }
 
     return acc;
-
-
 }
 
 bool Bank::processTransaction(Transaction* transaction) {
@@ -244,4 +259,23 @@ Customer* Bank::createNewUser(const std::string& username, const std::string& pa
 
     logger->log("New user created: " + username);
     return newCustomer;
+}
+
+DatabaseManager* Bank::getDatabaseManager() const {
+    return databaseManager;
+}
+
+Customer* Bank::findCustomerById(const std::string& id)
+{
+    for (Customer* cust : customers) {
+        if (cust->customerID == id) {
+            return cust;
+        }
+    }
+	// If not found in memory, check the database.
+    Customer* dbCustomer = databaseManager->getUser(id);
+    if (dbCustomer) {
+        customers.push_back(dbCustomer);
+    }
+    return dbCustomer;
 }
