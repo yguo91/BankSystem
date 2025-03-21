@@ -250,15 +250,27 @@ bool Bank::updateAccountDetails(Customer* currentUser, const std::string& accoun
 
 // Apply Interest to a Savings Account
 bool Bank::applyInterestToAccount(Customer* customer, const std::string& accountNumber) {
-    // Locate the account.
-    auto it = std::find_if(customer->accounts.begin(), customer->accounts.end(),
-        [&](Account* a) { return a->accountNumber == accountNumber; });
-    if (it != customer->accounts.end()) {
-        Account* account = *it;
+    Account* account = nullptr;
+
+	// If the customer is an admin, directly get the account from the database.
+    if (customer->role == Role::Admin) {
+        account = databaseManager->getAccountByAccountNumber(accountNumber);
+    }
+    else {
+		// Find the account in the customer's account list.
+        auto it = std::find_if(customer->accounts.begin(), customer->accounts.end(),
+            [&](Account* a) { return a->accountNumber == accountNumber; });
+        if (it != customer->accounts.end()) {
+            account = *it;
+        }
+    }
+
+    if (account) {
+		// Check if the account is a Savings account.
         if (account->getAccountType() == "Savings") {
-            // Call the account's applyInterest function.
+			// Apply interest to the account.
             account->applyInterest();
-            // Update the new balance in the database.
+			// Update the account balance in the database.
             if (databaseManager->updateAccountBalance(account->databaseId, account->balance)) {
                 Logger::getInstance()->log("Applied interest to account: " + account->accountNumber);
                 return true;
@@ -320,6 +332,7 @@ Customer* Bank::findCustomerById(const std::string& id)
     return dbCustomer;
 }
 
+//  still have unfixed bug march-21, 2025
 bool Bank::updateTransactionInDB(Transaction* transaction)
 {
     // Check if the transaction and its source account are valid
