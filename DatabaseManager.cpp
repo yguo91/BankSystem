@@ -255,7 +255,8 @@ bool DatabaseManager::validateUser(const std::string& userID, const std::string&
     }
 }
 
-Customer* DatabaseManager::getUser(const std::string& userID) {
+Customer* DatabaseManager::getUser(const std::string& userID)
+{
     int uid;
     try {
         uid = std::stoi(userID);
@@ -264,7 +265,7 @@ Customer* DatabaseManager::getUser(const std::string& userID) {
         std::cerr << "Invalid user ID format." << std::endl;
         return nullptr;
     }
-
+    
     std::string sql = "SELECT user_id, full_name, email, phone FROM users WHERE user_id = ?;";
     sqlite3_stmt* stmt;
     int exit = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
@@ -272,7 +273,7 @@ Customer* DatabaseManager::getUser(const std::string& userID) {
         std::cerr << "Error preparing statement in getUser: " << sqlite3_errmsg(db) << std::endl;
         return nullptr;
     }
-
+    
     sqlite3_bind_int(stmt, 1, uid);
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         // Retrieve columns: user_id, full_name, email, phone

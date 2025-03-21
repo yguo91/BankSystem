@@ -5,6 +5,7 @@
 #include <sqlite3.h>
 #include <string>
 #include <vector>
+#include "Customer.h"
 
 class DatabaseManager {
 private:
@@ -32,6 +33,7 @@ public:
     bool updateAccount(int accountId, double newBalance, double newInterestRate);
 
     bool validateUser(const std::string& userID, const std::string& password);
+    
     Customer* getUser(const std::string& userID);
 };
 
