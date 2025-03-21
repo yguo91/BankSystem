@@ -10,6 +10,7 @@
 #include "BankFacade.h"
 #include "AccountFactory.h"
 #include "DatabaseManager.h"  // Added for DB access
+#include "DepositTransaction.h"
 
 class Bank {
 public:
@@ -47,8 +48,9 @@ public:
 
     Customer* findCustomerById(const std::string& id);
 
-    // Add this function declaration in the Bank class to hanle the transactions
-    bool updateTransactionInDB(Transaction* transaction);
+    // Add this function declaration in the Bank class to handle the transactions
+    //bool Bank::updateTransactionInDB(Transaction* transaction)
+    bool updateTransactionInDB(DepositTransaction* transaction);
 };
 
 #endif // BANK_H

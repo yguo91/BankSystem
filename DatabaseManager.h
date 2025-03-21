@@ -8,6 +8,15 @@
 #include "Customer.h"
 #include "Account.h"
 
+//for storing transaction records
+struct TransactionRecord {
+    int transactionId;
+    std::string transactionType;
+    double amount;
+    std::string transactionDate;
+	int recipientAccount; // -1 if not applicable
+};
+
 class DatabaseManager {
 private:
     sqlite3* db;
@@ -43,6 +52,8 @@ public:
 
     // Retrieves an account from the database using the account number.
     Account* getAccountByAccountNumber(const std::string& accountNumber);
+
+    std::vector<TransactionRecord> getTransactionsForAccount(int accountId);
 };
 
 #endif // DATABASE_MANAGER_H

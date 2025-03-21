@@ -394,3 +394,39 @@ Account* DatabaseManager::getAccountByAccountNumber(const std::string& accountNu
     sqlite3_finalize(stmt);
     return account;
 }
+
+std::vector<TransactionRecord> DatabaseManager::getTransactionsForAccount(int accountId)
+{
+    std::vector<TransactionRecord> records;
+	// SQL query to retrieve transaction records for a given account ID
+    std::string sql = "SELECT transaction_id, transaction_type, amount, transaction_date, recipient_account FROM transactions WHERE account_id = ?;";
+    sqlite3_stmt* stmt;
+
+	// prepare the SQL statement
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Error preparing statement in getTransactionsForAccount: " << sqlite3_errmsg(db) << std::endl;
+        return records;
+    }
+
+    sqlite3_bind_int(stmt, 1, accountId);
+
+	// go through the result set
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        TransactionRecord record;
+        record.transactionId = sqlite3_column_int(stmt, 0);
+        record.transactionType = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        record.amount = sqlite3_column_double(stmt, 2);
+        record.transactionDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+		// recipient_account may be NULL, so check the type before reading
+        if (sqlite3_column_type(stmt, 4) == SQLITE_NULL)
+            record.recipientAccount = -1;
+        else
+            record.recipientAccount = sqlite3_column_int(stmt, 4);
+
+        records.push_back(record);
+    }
+
+	//release the statement
+    sqlite3_finalize(stmt);
+    return records;
+}

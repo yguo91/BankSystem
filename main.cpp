@@ -237,9 +237,39 @@ void showDashboard(Bank& bank, Customer* customer) {
             }
             case 5: {
                 cout << "TRANSACTION HISTORY\n";
-                vector<Transaction*> history = customer->getTransactionHistory();
+                /*vector<Transaction*> history = customer->getTransactionHistory();
                 for (auto txn : history) {
                     cout << txn->timestamp << " | " << txn->transactionID << " | $" << txn->amount << "\n";
+                }*/
+               /* Account* currentAccount = bank.getDatabaseManager()->getAccountByAccountNumber(customer->accounts[0]->accountNumber);
+                if (!currentAccount) {
+                    std::cout << "Unable to retrieve account details from database.\n";
+                    break;
+                }*/
+
+                //int accountId = currentAccount->databaseId;
+                int accountId = customer->accounts[0]->databaseId;
+				//accountId = 2; //current do not have new transaction, so we need modify the id to eather 1 or 2
+
+                // for debugging
+                //cout << "DEBUG Account ID: " << accountId << endl;
+
+                std::vector<TransactionRecord> records = bank.getDatabaseManager()->getTransactionsForAccount(accountId);
+
+                std::cout << "\n=== Database Transaction History for Account "
+                    << customer->accounts[0]->accountNumber << " ===\n";
+				//formatting the output
+                for (const auto& record : records) {
+                    std::cout << "Transaction ID: " << record.transactionId
+                        << " | Type: " << record.transactionType
+                        << " | Amount: $" << record.amount
+                        << " | Date: " << record.transactionDate;
+                    if (record.recipientAccount != -1)
+                        std::cout << " | Recipient Account: " << record.recipientAccount;
+                    std::cout << std::endl;
+                }
+                if (records.empty()) {
+                    std::cout << "No transactions found for this account.\n";
                 }
                 break;
             }
