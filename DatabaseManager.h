@@ -35,6 +35,8 @@ public:
     bool validateUser(const std::string& userID, const std::string& password);
     
     Customer* getUser(const std::string& userID);
+
+    sqlite3* getDB() const { return db; }
 };
 
 #endif // DATABASE_MANAGER_H

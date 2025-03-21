@@ -25,7 +25,8 @@ public:
     ~Bank();
     void addCustomer(Customer* customer);
     void removeCustomer(const std::string& customerID);
-    Account* createAccount(Customer* customer, AccountType type, double initialBalance);
+    Account* createAccount(Customer* targetCustomer, AccountType type, double initialBalance, Customer* initiator);
+    //Account* createAccount(Customer* customer, AccountType type, double initialBalance);
     bool processTransaction(Transaction* transaction);
     void generateReport();
     void notifyCustomers(const std::string& message);
@@ -42,6 +43,8 @@ public:
         const std::string& phone);
 
 	DatabaseManager* getDatabaseManager() const;  // Getter for database manager
+
+    Customer* findCustomerById(const std::string& id);
 };
 
 #endif // BANK_H

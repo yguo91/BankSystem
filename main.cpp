@@ -108,11 +108,24 @@ void showDashboard(Bank& bank, Customer* customer) {
                 int typeChoice; cin >> typeChoice;
                 AccountType type = (typeChoice == 1) ? AccountType::Savings : (typeChoice == 2 ? AccountType::Checking : AccountType::Business);
                 cout << "Enter Customer ID: ";
-                string custID; cin >> custID;
-                cout << "Enter Initial Balance: $";
+                string custID; 
+                cin >> custID;
+                Customer* targetCustomer = bank.findCustomerById(custID);
+                if (targetCustomer != nullptr) {
+                    cout << "Enter Initial Balance: $";
+                    double initBal;
+                    cin >> initBal;
+                    bank.createAccount(targetCustomer, type, initBal, customer);
+                    Logger::getInstance()->log("Admin created new account for customer " + custID);
+                }
+                else {
+                    cout << "Customer not found.\n";
+                }
+
+                /*cout << "Enter Initial Balance: $";
                 double initBal; cin >> initBal;
                 bank.createAccount(customer, type, initBal);
-                Logger::getInstance()->log("Admin created new account for customer " + custID);
+                Logger::getInstance()->log("Admin created new account for customer " + custID);*/
             }
             else if (choice == 4) {
                 cout << "Listing all accounts:\n";
