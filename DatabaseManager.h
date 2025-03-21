@@ -40,6 +40,9 @@ public:
     sqlite3* getDB() const { return db; }
 
     std::vector<Account*> getAccountsForUser(const std::string& userID);
+
+    // Retrieves an account from the database using the account number.
+    Account* getAccountByAccountNumber(const std::string& accountNumber);
 };
 
 #endif // DATABASE_MANAGER_H

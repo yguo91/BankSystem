@@ -189,34 +189,62 @@ bool Bank::deleteAccount(Customer* customer, const std::string& accountNumber) {
 }
 
 // Update Account Details
-bool Bank::updateAccountDetails(Customer* customer, const std::string& accountNumber, double newBalance, double newInterestRate) {
-    // Locate the account.
-    auto it = std::find_if(customer->accounts.begin(), customer->accounts.end(),
+bool Bank::updateAccountDetails(Customer* currentUser, const std::string& accountNumber, double newBalance, double newInterestRate) {
+    if (currentUser->role != Role::Admin) {
+        Logger::getInstance()->log("Permission denied: Only admin can modify account details.");
+        return false;
+    }
+
+    // Find the account in the global accounts list.
+    auto it = std::find_if(accounts.begin(), accounts.end(),
         [&](Account* a) { return a->accountNumber == accountNumber; });
-    if (it != customer->accounts.end()) {
-        Account* account = *it;
-        // Update in-memory details.
-        account->balance = newBalance;
-        // If this is a savings account, update the interest rate.
-        if (account->getAccountType() == "Savings") {
-            SavingsAccount* sAcc = dynamic_cast<SavingsAccount*>(account);
-            if (sAcc) {
-                sAcc->interestRate = newInterestRate;
-            }
-        }
-        // Update the database.
-        if (databaseManager->updateAccount(account->databaseId, newBalance, newInterestRate)) {
-            Logger::getInstance()->log("Updated account details for: " + account->accountNumber);
-            return true;
+
+    Account* account = nullptr;
+    if (it != accounts.end()) {
+        account = *it;
+    }
+    else {
+        // Account not found in memory, try to load it from the database.
+        account = databaseManager->getAccountByAccountNumber(accountNumber);
+        if (account) {
+            // Add the loaded account to the global accounts list.
+            accounts.push_back(account);
+            Logger::getInstance()->log("Loaded account " + accountNumber + " from the database.");
         }
         else {
-            Logger::getInstance()->log("Failed to update account details in database for: " + account->accountNumber);
+            Logger::getInstance()->log("Account not found for update: " + accountNumber);
+            return false;
+        }
+    }
+
+    // Debug log: Print out the account's database ID and account number.
+    Logger::getInstance()->log("Debug: Updating account with accountNumber: " + account->accountNumber +
+        ", databaseId: " + std::to_string(account->databaseId));
+
+    // Update the in-memory account details.
+    account->balance = newBalance;
+
+    // If the account is a Savings account, update the interest rate.
+    if (account->getAccountType() == "Savings") {
+        SavingsAccount* sAcc = dynamic_cast<SavingsAccount*>(account);
+        if (sAcc) {
+            sAcc->interestRate = newInterestRate;
         }
     }
     else {
-        Logger::getInstance()->log("Account not found for update: " + accountNumber);
+        // For non-savings accounts, set the interest rate to 0.
+        newInterestRate = 0;
     }
-    return false;
+	
+    // Update the account details in the database.
+    if (databaseManager->updateAccount(account->databaseId, newBalance, newInterestRate)) {
+        Logger::getInstance()->log("Updated account details for: " + account->accountNumber);
+        return true;
+    }
+    else {
+        Logger::getInstance()->log("Failed to update account details in database for: " + account->accountNumber);
+        return false;
+    }
 }
 
 // Apply Interest to a Savings Account

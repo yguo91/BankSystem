@@ -353,3 +353,44 @@ std::vector<Account*> DatabaseManager::getAccountsForUser(const std::string& use
     sqlite3_finalize(stmt);
     return accounts;
 }
+
+Account* DatabaseManager::getAccountByAccountNumber(const std::string& accountNumber)
+{
+    std::string sql = "SELECT account_id, user_id, account_number, account_type, balance, interest_rate FROM accounts WHERE account_number = ?;";
+    sqlite3_stmt* stmt;
+    int exit = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error preparing statement in getAccountByAccountNumber: " << sqlite3_errmsg(db) << std::endl;
+        return nullptr;
+    }
+
+    sqlite3_bind_text(stmt, 1, accountNumber.c_str(), -1, SQLITE_STATIC);
+    Account* account = nullptr;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        int accountId = sqlite3_column_int(stmt, 0);
+        std::string accNum = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string accountType = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        double balance = sqlite3_column_double(stmt, 4);
+        double interestRate = sqlite3_column_double(stmt, 5);
+
+        // Depending on accountType, create the appropriate account object.
+        // Here we handle Savings, Checking, and Business accounts. Extend as needed.
+        if (accountType == "savings") {
+            account = new SavingsAccount(accNum, nullptr, balance, interestRate);
+        }
+        else if (accountType == "chequing") {
+            // Assuming CheckingAccount constructor signature: (accountNumber, owner, balance)
+            account = new CheckingAccount(accNum, nullptr, balance);
+        }
+        else if (accountType == "business") {
+            // Assuming BusinessAccount constructor signature: (accountNumber, owner, balance)
+            account = new BusinessAccount(accNum, nullptr, balance);
+        }
+        // Set the databaseId so that future updates work properly.
+        if (account) {
+            account->databaseId = accountId;
+        }
+    }
+    sqlite3_finalize(stmt);
+    return account;
+}
