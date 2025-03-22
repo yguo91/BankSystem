@@ -1,2 +1,0 @@
-user__id,username,password__hash,full__name,email,phone,created__at
-2,test_user,test_pass,Test User,test@example.com,1234567890,2025-03-17 8:46:49 PM
