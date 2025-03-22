@@ -1,3 +1,0 @@
-account__id,user__id,account__number,account__type,balance,interest__rate,created__at
-3,1,ACC-1001,savings,5000,2.5,2025-03-17 8:46:49 PM
-4,2,ACC-1002,chequing,3000,1,2025-03-17 8:46:49 PM
